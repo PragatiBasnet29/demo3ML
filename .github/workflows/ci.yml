@@ -1,28 +1,46 @@
 name: Continuous Integration
+
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
   workflow_dispatch:
-  
-permissions: write-all
+
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: iterative/setup-cml@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
+
       - name: Install Packages
         run: make install
-      - name: Format
+
+      - name: Format Code
         run: make format
-      - name: Train
+
+      - name: Run Tests
+        run: make test
+
+      - name: Train Model
         run: make train
-      - name: Evaluation
+
+      - name: Evaluate Model
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make eval
+
       - name: Update Branch
         env:
           NAME: ${{ secrets.USER_NAME }}
